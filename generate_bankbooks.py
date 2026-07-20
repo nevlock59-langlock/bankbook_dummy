@@ -204,27 +204,19 @@ HAMBURGER_ICON_URI = make_hamburger_icon_uri()
 _LOGO_MARK_CACHE = {}
 
 
-def make_logo_mark_uri(accent_hex, initial):
-    from PIL import ImageDraw, ImageFont
-
-    key = (accent_hex, initial)
-    if key in _LOGO_MARK_CACHE:
-        return _LOGO_MARK_CACHE[key]
+def make_logo_mark_uri(accent_hex):
+    if accent_hex in _LOGO_MARK_CACHE:
+        return _LOGO_MARK_CACHE[accent_hex]
 
     size = 40
-    accent_hex = accent_hex.lstrip("#")
-    rgb = tuple(int(accent_hex[i : i + 2], 16) for i in (0, 2, 4))
+    hex_digits = accent_hex.lstrip("#")
+    rgb = tuple(int(hex_digits[i : i + 2], 16) for i in (0, 2, 4))
     icon = Image.new("RGBA", (size, size), rgb + (255,))
-    draw = ImageDraw.Draw(icon)
-    font = ImageFont.truetype(str(FONT_BOLD_PATH), 22)
-    bbox = draw.textbbox((0, 0), initial, font=font)
-    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    draw.text(((size - tw) / 2 - bbox[0], (size - th) / 2 - bbox[1]), initial, font=font, fill=(255, 255, 255, 255))
     buf = io.BytesIO()
     icon.save(buf, format="PNG")
     b64 = base64.b64encode(buf.getvalue()).decode("ascii")
     uri = f"data:image/png;base64,{b64}"
-    _LOGO_MARK_CACHE[key] = uri
+    _LOGO_MARK_CACHE[accent_hex] = uri
     return uri
 
 
@@ -307,7 +299,7 @@ def render_pdf(data):
         accent=accent,
         bg_tint=lighten(accent, 0.92),
         hamburger_uri=HAMBURGER_ICON_URI,
-        logo_mark_uri=make_logo_mark_uri(accent, data["bank_name"][0]),
+        logo_mark_uri=make_logo_mark_uri(accent),
         **data,
     )
 
