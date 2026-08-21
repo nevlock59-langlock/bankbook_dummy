@@ -15,6 +15,7 @@ import base64
 import json
 import os
 import re
+import streamlit as st
 
 os.environ["PADDLE_PDX_ENABLE_MKLDNN_BY_DEFAULT"] = "0"
 
