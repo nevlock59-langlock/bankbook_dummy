@@ -16,7 +16,7 @@ import json
 import os
 import re
 
-VLM_BACKEND = os.environ.get("VLM_BACKEND", "ollama").strip().lower()
+VLM_BACKEND = os.environ.get("VLM_BACKEND", "paddle").strip().lower()
 assert VLM_BACKEND in ["ollama", "paddle"]
 
 OLLAMA_ENDPOINT = os.environ.get("OLLAMA_ENDPOINT", "http://localhost:11434").rstrip("/")
