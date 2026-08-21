@@ -1,6 +1,16 @@
-# 📓 통장사본 자동 문자인식 PoC
+# 🏦 통장사본 자동 문자인식 PoC
 
-> 통장사본 이미지를 넣으면 **OCR/VLM**(이미지 속 글자를 읽어내는 기술)으로 텍스트를 추출하고, 거래처명·은행명이 맞는지 자동으로 원본 데이터와 비교해주는 로컬 데모입니다.
+> 통장사본 이미지를 넣으면 OCR/VLM(이미지 속 글자를 읽어내는 기술)으로
+> 텍스트를 추출하고, 거래처명·은행명이 맞는지 원본 데이터와
+> 자동으로 비교해주는 데모입니다.
+
+## 🚀 바로 실행해보기
+
+**[Streamlit Cloud에서 데모 실행하기](https://vibe-coding-bankbook-dummy.streamlit.app/)**
+
+- 별도 설치 없이 브라우저에서 실행할 수 있습니다.
+- Streamlit Cloud에서는 **PaddleOCR 백엔드**로 동작합니다.
+- **Ollama + Qwen3-VL 백엔드**는 로컬 실행 환경에서 사용할 수 있습니다.
 
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?logo=streamlit&logoColor=white)
