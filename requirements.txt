@@ -8,5 +8,5 @@ Pillow
 
 # PaddleOCR 백엔드(VLM_BACKEND=paddle)를 쓸 때만 필요합니다.
 # 필요하면 아래 두 줄의 주석을 해제하고 다시 설치하세요.
-# paddlepaddle
-# paddleocr
+paddlepaddle
+paddleocr
