@@ -109,7 +109,7 @@ if "editor_default_checked" not in st.session_state:
 
 df = load_csv()
 
-st.subheader("원본 CSV")
+st.subheader("(1) 거래처 선택")
 
 select_all = st.checkbox("전체 선택", key="select_all_checkbox")
 bulk_change = False
@@ -152,6 +152,8 @@ st.write(
     f"**{len(st.session_state.checked_doc_ids)}건 선택** "
     f"(선택 중 미완료 **{len(runnable_doc_ids)}건**을 실행합니다)"
 )
+
+st.subheader("(2) 자동 문자인식")
 
 if st.button("실행", type="primary", key="run_selected_btn", disabled=not runnable_doc_ids):
     batch_id = datetime.now().strftime("%Y%m%dT%H%M%S%f")
