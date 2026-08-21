@@ -16,6 +16,8 @@ import json
 import os
 import re
 
+os.environ["PADDLE_PDX_ENABLE_MKLDNN_BY_DEFAULT"] = "0"
+
 VLM_BACKEND = os.environ.get("VLM_BACKEND", "ollama").strip().lower()
 assert VLM_BACKEND in ["ollama", "paddle"]
 
