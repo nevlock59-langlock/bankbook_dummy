@@ -27,7 +27,7 @@ OLLAMA_TIMEOUT = float(os.environ.get("OLLAMA_TIMEOUT", "120"))
 
 _paddle_ocr_engine = None
 
-
+@st.cache_resource
 def _get_paddle_engine():
     global _paddle_ocr_engine
     if _paddle_ocr_engine is None:
