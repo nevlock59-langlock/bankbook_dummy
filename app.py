@@ -28,7 +28,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.title(f"통장사본 {OCR_LABEL} 검증 대시보드")
-st.caption(f"VLM 백엔드: {VLM_BACKEND}")
+st.caption(f"문자인식 백엔드: {VLM_BACKEND}")
 
 
 @st.cache_data
@@ -149,7 +149,7 @@ st.write(
     f"(선택 중 미완료 **{len(runnable_doc_ids)}건**을 실행합니다)"
 )
 
-if st.button("실행", key="run_selected_btn", disabled=not runnable_doc_ids):
+if st.button("실행", type="primary", key="run_selected_btn", disabled=not runnable_doc_ids):
     batch_id = datetime.now().strftime("%Y%m%dT%H%M%S%f")
     batch_started_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     batch_jsonl_path = BATCHES_DIR / f"{batch_id}.jsonl"
