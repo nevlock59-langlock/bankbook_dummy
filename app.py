@@ -30,6 +30,10 @@ st.markdown(
 st.title(f"통장사본 {OCR_LABEL} 검증 대시보드")
 st.caption(f"문자인식 백엔드: {VLM_BACKEND}")
 
+st.markdown(
+    "[📘 프로젝트 설명 및 실행 구조]"
+    "(https://github.com/nevlock59-langlock/bankbook_dummy#readme)"
+)
 
 @st.cache_data
 def load_csv():
