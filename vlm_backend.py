@@ -26,12 +26,10 @@ OLLAMA_ENDPOINT = os.environ.get("OLLAMA_ENDPOINT", "http://localhost:11434").rs
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen3-vl:2b-instruct")
 OLLAMA_TIMEOUT = float(os.environ.get("OLLAMA_TIMEOUT", "120"))
 
-_paddle_ocr_engine = None
 
 @st.cache_resource
 def _get_paddle_engine():
-    global _paddle_ocr_engine
-    if _paddle_ocr_engine is None:
+    if True:
         from paddleocr import PaddleOCR
 
         _paddle_ocr_engine = PaddleOCR(
