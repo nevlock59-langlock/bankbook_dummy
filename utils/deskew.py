@@ -3,6 +3,21 @@ import numpy as np
 import math
 from pathlib import Path
 
+def resize_for_ocr(image, max_side=2000):
+    h, w = image.shape[:2]
+
+    scale = min(1.0, max_side / max(h, w))
+
+    if scale == 1.0:
+        return image
+
+    return cv2.resize(
+        image,
+        None,
+        fx=scale,
+        fy=scale,
+        interpolation=cv2.INTER_AREA,
+    )
 
 def read_image(path):
     """
@@ -149,7 +164,7 @@ def deskew_document(
     input_path = Path(input_path)
 
     image = read_image(input_path)
-
+    image = resize_for_ocr(image)
     angle = estimate_skew_angle(image)
 
     if abs(angle) < 0.5:
