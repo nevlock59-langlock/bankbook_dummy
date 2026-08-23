@@ -205,16 +205,27 @@ if st.session_state.preview_doc_id is not None:
         (r for r in st.session_state.ocr_history if r["doc_id"] == row["doc_id"]),
         None,
     )
+
     col1, col_right = st.columns([1, 2])
+
     with col1:
-        st.image(resolve_image_path(row), caption=row["파일명"], use_container_width=True)
+        st.image(
+            resolve_image_path(row),
+            caption=row["파일명"],
+            use_container_width=True,
+        )
+
     with col_right:
         col2, col3 = st.columns([1, 1])
+
         with col2:
             st.write(f"**doc_id**: {row['doc_id']}")
             st.write(f"**거래처코드**: {row['거래처코드']}")
             st.write(f"**거래처명**: {row['거래처명']}")
-            st.write(f"**은행코드**: {row['은행코드']} ({BANK_CODE_TO_NAME.get(row['은행코드'], '알수없음')})")
+            st.write(
+                f"**은행코드**: {row['은행코드']} "
+                f"({BANK_CODE_TO_NAME.get(row['은행코드'], '알수없음')})"
+            )
 
             if record:
                 st.success(f"{OCR_LABEL} 실행 완료")
@@ -227,6 +238,7 @@ if st.session_state.preview_doc_id is not None:
                     height=100,
                     key="preview_result_text",
                 )
+
         with col3:
             if record and VLM_BACKEND == "ollama":
                 st.write(f"**Sent prompt to {OLLAMA_MODEL}**")
@@ -238,8 +250,9 @@ if st.session_state.preview_doc_id is not None:
                     disabled=True,
                 )
 
-        # 이미지 옆 2/3 영역의 남는 하단 공간에 이력 표를 배치
-        render_history_table()
+    # 컬럼 영역 종료 후 전체 페이지 폭으로 이력 표 출력
+    render_history_table()
+
 else:
     st.info("위 표에서 체크박스를 선택하세요.")
     render_history_table()
