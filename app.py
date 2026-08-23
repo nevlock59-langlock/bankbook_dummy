@@ -295,7 +295,7 @@ if uploaded_file is not None:
     )
 
     run_personal = st.button(
-        f"Deskew + {OCR_LABEL} 실행",
+        f"기울기 보정 + {OCR_LABEL} 실행",
         type="primary",
         key="run_personal_ocr",
     )
@@ -368,7 +368,7 @@ if uploaded_file is not None:
 
             st.image(
                 str(deskewed_path),
-                caption=f"Deskew 결과 — {angle:.3f}°",
+                caption=f"기울기 보정(Deskew) 결과 — {angle:.3f}°",
                 use_container_width=True,
             )
 
