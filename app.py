@@ -281,6 +281,7 @@ uploaded_file = st.file_uploader(
 )
 
 if uploaded_file is not None:
+    file_size_mb = len(uploaded_file.getvalue()) / 1024 / 1024
 
     st.image(
         uploaded_file,
@@ -288,53 +289,58 @@ if uploaded_file is not None:
         use_container_width=True,
     )
 
-    if st.button(
+    st.caption(
+        f"파일명: {uploaded_file.name} · "
+        f"크기: {file_size_mb:.2f} MB"
+    )
+
+    run_personal = st.button(
         f"Deskew + {OCR_LABEL} 실행",
         type="primary",
         key="run_personal_ocr",
-    ):
+    )
 
+    if run_personal:
         suffix = Path(uploaded_file.name).suffix.lower()
 
         input_path = None
         deskewed_path = None
 
         try:
-            # 1. 업로드 파일을 임시 저장
-            with tempfile.NamedTemporaryFile(
-                delete=False,
-                suffix=suffix,
-            ) as tmp:
-                tmp.write(uploaded_file.getvalue())
-                input_path = Path(tmp.name)
+            with st.status(
+                "문서 처리 중...",
+                expanded=True,
+            ) as status:
 
-            # 2. deskew 결과 파일 경로
-            deskewed_path = input_path.with_name(
-                f"{input_path.stem}_deskewed.png"
-            )
+                st.write("① 업로드 파일 읽는 중")
 
-            # 3. 기존 utils/deskew.py 그대로 재사용
-            with st.spinner("이미지 기울기 보정 중..."):
+                with tempfile.NamedTemporaryFile(
+                    delete=False,
+                    suffix=suffix,
+                ) as tmp:
+                    tmp.write(uploaded_file.getvalue())
+                    input_path = Path(tmp.name)
+
+                st.write("✓ 업로드 파일 읽기 완료")
+
+                deskewed_path = input_path.with_name(
+                    f"{input_path.stem}_deskewed.png"
+                )
+
+                st.write("② 기울기 보정(deskew) 중")
+
                 angle, deskewed_path = deskew_document(
                     input_path,
                     deskewed_path,
                 )
 
-            st.success(
-                f"Deskew 완료 — 추정 기울기 {angle:.3f}°"
-            )
+                st.write(
+                    f"✓ 기울기 보정 완료 "
+                    f"({angle:.3f}°)"
+                )
 
-            st.image(
-                str(deskewed_path),
-                caption="자동 회전 보정 결과",
-                use_container_width=True,
-            )
+                st.write(f"③ {OCR_LABEL} 실행 중")
 
-            # 4. 기존 OCR 백엔드 그대로 재사용
-            with st.spinner(
-                f"{OCR_LABEL} 실행 중... "
-                "1장당 약 20초 정도 걸릴 수 있습니다."
-            ):
                 call_time = datetime.now()
 
                 texts = run_ocr(
@@ -343,33 +349,45 @@ if uploaded_file is not None:
 
                 return_time = datetime.now()
 
-            elapsed = (
-                return_time - call_time
-            ).total_seconds()
+                elapsed = (
+                    return_time - call_time
+                ).total_seconds()
 
-            st.success(
-                f"{OCR_LABEL} 완료 — {elapsed:.1f}초"
+                st.write(
+                    f"✓ {OCR_LABEL} 완료 "
+                    f"({elapsed:.1f}초)"
+                )
+
+                status.update(
+                    label="처리 완료",
+                    state="complete",
+                    expanded=False,
+                )
+
+            st.subheader("보정 결과")
+
+            st.image(
+                str(deskewed_path),
+                caption=f"Deskew 결과 — {angle:.3f}°",
+                use_container_width=True,
             )
+
+            st.subheader("문자인식 결과")
 
             if texts:
                 st.text_area(
-                    "문자인식 전체 텍스트",
+                    "전체 텍스트",
                     "\n".join(texts),
                     height=300,
                     key="personal_ocr_result",
                 )
             else:
-                st.warning(
-                    "인식된 텍스트가 없습니다."
-                )
+                st.warning("인식된 텍스트가 없습니다.")
 
         except Exception as e:
-            st.error(
-                f"처리 실패: {e}"
-            )
+            st.error(f"처리 실패: {e}")
 
         finally:
-            # 5. 임시 파일 정리
             for path in [
                 input_path,
                 deskewed_path,
