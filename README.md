@@ -25,6 +25,8 @@
 
 `이미지 업로드 → Resize → Deskew → PaddleOCR → 전체 텍스트 출력`
 
+![내 이미지로 OCR 테스트](assets/try-your-own-image.gif)
+
 통장사본뿐 아니라 **텍스트가 포함된 일반 이미지도 사용할 수 있으며**, [`utils/deskew.py`](utils/deskew.py)의 이미지 전처리 기능을 실제 OCR 파이프라인에서 그대로 재사용합니다.
 
 > 공개 데모에는 개인정보·민감정보가 포함된 실제 문서 업로드를 권장하지 않습니다.
