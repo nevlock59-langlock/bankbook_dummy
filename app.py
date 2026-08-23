@@ -8,6 +8,8 @@ VLM_BACKEND 설정에 따라 PaddleOCR 또는 Ollama로 인식한 뒤
 import json
 from datetime import datetime
 from pathlib import Path
+import os
+import tempfile
 
 import pandas as pd
 import streamlit as st
@@ -256,3 +258,77 @@ if st.session_state.preview_doc_id is not None:
 else:
     st.info("위 표에서 체크박스를 선택하세요.")
     render_history_table()
+
+
+st.divider()
+st.subheader("(3) 내 파일로 문자인식 해보기")
+
+st.caption(
+    f"이미지 파일을 업로드하여 현재 {OCR_LABEL} 백엔드로 "
+    "문서 전체 텍스트를 직접 인식해볼 수 있습니다."
+)
+
+st.info(
+    "업로드한 파일은 문자인식 처리를 위해 서버에 일시적으로 전달됩니다. "
+    "개인정보·민감정보가 포함된 문서나 이미지 업로드는 권장하지 않습니다."
+)
+
+uploaded_file = st.file_uploader(
+    "PNG 또는 JPG 이미지 업로드",
+    type=["png", "jpg", "jpeg"],
+    key="personal_ocr_upload",
+)
+
+if uploaded_file is not None:
+    st.image(
+        uploaded_file,
+        caption=uploaded_file.name,
+        use_container_width=True,
+    )
+
+    if st.button(
+        f"내 파일 {OCR_LABEL} 실행",
+        type="primary",
+        key="run_personal_ocr",
+    ):
+        suffix = Path(uploaded_file.name).suffix.lower()
+
+        temp_path = None
+
+        try:
+            with tempfile.NamedTemporaryFile(
+                delete=False,
+                suffix=suffix,
+            ) as tmp:
+                tmp.write(uploaded_file.getvalue())
+                temp_path = tmp.name
+
+            with st.spinner(
+                f"{OCR_LABEL} 실행 중... 1장당 약 20초 정도 걸릴 수 있습니다."
+            ):
+                call_time = datetime.now()
+                texts = run_ocr(temp_path)
+                return_time = datetime.now()
+
+            elapsed = (return_time - call_time).total_seconds()
+
+            st.success(
+                f"{OCR_LABEL} 완료 — {elapsed:.1f}초"
+            )
+
+            if texts:
+                st.text_area(
+                    "문자인식 전체 텍스트",
+                    "\n".join(texts),
+                    height=300,
+                    key="personal_ocr_result",
+                )
+            else:
+                st.warning("인식된 텍스트가 없습니다.")
+
+        except Exception as e:
+            st.error(f"{OCR_LABEL} 실행 실패: {e}")
+
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
