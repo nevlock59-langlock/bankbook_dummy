@@ -10,6 +10,7 @@ from datetime import datetime
 from pathlib import Path
 import os
 import tempfile
+from utils.deskew import deskew_document
 
 import pandas as pd
 import streamlit as st
@@ -264,13 +265,13 @@ st.divider()
 st.subheader("(3) 내 파일로 문자인식 해보기")
 
 st.caption(
-    f"이미지 파일을 업로드하여 현재 {OCR_LABEL} 백엔드로 "
-    "문서 전체 텍스트를 직접 인식해볼 수 있습니다."
+    "내 이미지 파일을 업로드하면 자동 회전 보정(deskew) 후 "
+    f"{OCR_LABEL}로 전체 텍스트를 읽습니다."
 )
 
 st.info(
     "업로드한 파일은 문자인식 처리를 위해 서버에 일시적으로 전달됩니다. "
-    "개인정보·민감정보가 포함된 문서나 이미지 업로드는 권장하지 않습니다."
+    "개인정보·민감정보가 포함된 이미지의 업로드는 권장하지 않습니다."
 )
 
 uploaded_file = st.file_uploader(
@@ -280,37 +281,71 @@ uploaded_file = st.file_uploader(
 )
 
 if uploaded_file is not None:
+
     st.image(
         uploaded_file,
-        caption=uploaded_file.name,
+        caption=f"원본 — {uploaded_file.name}",
         use_container_width=True,
     )
 
     if st.button(
-        f"내 파일 {OCR_LABEL} 실행",
+        f"Deskew + {OCR_LABEL} 실행",
         type="primary",
         key="run_personal_ocr",
     ):
+
         suffix = Path(uploaded_file.name).suffix.lower()
 
-        temp_path = None
+        input_path = None
+        deskewed_path = None
 
         try:
+            # 1. 업로드 파일을 임시 저장
             with tempfile.NamedTemporaryFile(
                 delete=False,
                 suffix=suffix,
             ) as tmp:
                 tmp.write(uploaded_file.getvalue())
-                temp_path = tmp.name
+                input_path = Path(tmp.name)
 
+            # 2. deskew 결과 파일 경로
+            deskewed_path = input_path.with_name(
+                f"{input_path.stem}_deskewed.png"
+            )
+
+            # 3. 기존 utils/deskew.py 그대로 재사용
+            with st.spinner("이미지 기울기 보정 중..."):
+                angle, deskewed_path = deskew_document(
+                    input_path,
+                    deskewed_path,
+                )
+
+            st.success(
+                f"Deskew 완료 — 추정 기울기 {angle:.3f}°"
+            )
+
+            st.image(
+                str(deskewed_path),
+                caption="자동 회전 보정 결과",
+                use_container_width=True,
+            )
+
+            # 4. 기존 OCR 백엔드 그대로 재사용
             with st.spinner(
-                f"{OCR_LABEL} 실행 중... 1장당 약 20초 정도 걸릴 수 있습니다."
+                f"{OCR_LABEL} 실행 중... "
+                "1장당 약 20초 정도 걸릴 수 있습니다."
             ):
                 call_time = datetime.now()
-                texts = run_ocr(temp_path)
+
+                texts = run_ocr(
+                    str(deskewed_path)
+                )
+
                 return_time = datetime.now()
 
-            elapsed = (return_time - call_time).total_seconds()
+            elapsed = (
+                return_time - call_time
+            ).total_seconds()
 
             st.success(
                 f"{OCR_LABEL} 완료 — {elapsed:.1f}초"
@@ -324,11 +359,20 @@ if uploaded_file is not None:
                     key="personal_ocr_result",
                 )
             else:
-                st.warning("인식된 텍스트가 없습니다.")
+                st.warning(
+                    "인식된 텍스트가 없습니다."
+                )
 
         except Exception as e:
-            st.error(f"{OCR_LABEL} 실행 실패: {e}")
+            st.error(
+                f"처리 실패: {e}"
+            )
 
         finally:
-            if temp_path and os.path.exists(temp_path):
-                os.remove(temp_path)
+            # 5. 임시 파일 정리
+            for path in [
+                input_path,
+                deskewed_path,
+            ]:
+                if path and Path(path).exists():
+                    Path(path).unlink()
