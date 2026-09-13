@@ -88,20 +88,7 @@ def save_image(path, image):
 
     encoded.tofile(str(path))
 
-def horizontal_projection_score(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    _, binary = cv2.threshold(
-        gray,
-        0,
-        255,
-        cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
-    )
-
-    projection = np.sum(binary > 0, axis=1)
-
-    return float(np.percentile(projection, 90) - np.percentile(projection, 10))
-    
+  
 def choose_deskew(image, angle, min_gain=0.05):
     base_score = horizontal_projection_score(image)
 
@@ -260,7 +247,7 @@ def deskew_document(
     print(f"estimated skew  : {angle:.3f}°")
     print(f"output          : {output_path}")
 
-    return angle, Path(output_path)
+    return applied_angle, Path(output_path)
 
 
 # ============================================================
