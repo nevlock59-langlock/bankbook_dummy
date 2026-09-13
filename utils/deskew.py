@@ -241,6 +241,7 @@ def deskew_document(
         image,
         angle
     )
+    angle = applied_angle
     
 
     if output_path is None:
@@ -259,7 +260,7 @@ def deskew_document(
     print(f"estimated skew  : {angle:.3f}°")
     print(f"output          : {output_path}")
 
-    return applied_angle, Path(output_path)
+    return angle, Path(output_path)
 
 
 # ============================================================
