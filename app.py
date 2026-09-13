@@ -89,7 +89,7 @@ def render_history_table():
         st.subheader(f"{OCR_LABEL} 실행 결과 이력")
         st.dataframe(
             pd.DataFrame(st.session_state.ocr_history),
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             column_config={
                 "문자인식결과": st.column_config.TextColumn(width="large"),
@@ -133,7 +133,7 @@ df_view.insert(0, "선택", st.session_state.editor_default_checked)
 
 edited_df = st.data_editor(
     df_view,
-    use_container_width=True,
+    width='stretch',
     hide_index=True,
     disabled=[c for c in df_view.columns if c != "선택"],
     column_config={"선택": st.column_config.CheckboxColumn("선택")},
@@ -215,7 +215,7 @@ if st.session_state.preview_doc_id is not None:
         st.image(
             resolve_image_path(row),
             caption=row["파일명"],
-            use_container_width=True,
+            width='stretch',
         )
 
     with col_right:
@@ -286,7 +286,7 @@ if uploaded_file is not None:
     st.image(
         uploaded_file,
         caption=f"원본 — {uploaded_file.name}",
-        use_container_width=True,
+        width='stretch',
     )
 
     st.caption(
@@ -370,7 +370,7 @@ if uploaded_file is not None:
             st.image(
                 str(deskewed_path),
                 caption=f"기울기 보정(Deskew) 결과 — {angle:.3f}°",
-                use_container_width=True,
+                width='stretch',
             )
 
             st.subheader("문자인식 결과")
