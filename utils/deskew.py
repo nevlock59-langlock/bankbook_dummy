@@ -53,6 +53,43 @@ def save_image(path, image):
 
     encoded.tofile(str(path))
 
+def horizontal_projection_score(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    _, binary = cv2.threshold(
+        gray,
+        0,
+        255,
+        cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+    )
+
+    projection = np.sum(binary > 0, axis=1)
+
+    return float(np.percentile(projection, 90) - np.percentile(projection, 10))
+    
+def choose_deskew(image, angle, min_gain=0.05):
+    base_score = horizontal_projection_score(image)
+
+    cand1 = deskew_image(image, angle)
+    cand2 = deskew_image(image, -angle)
+
+    score1 = horizontal_projection_score(cand1)
+    score2 = horizontal_projection_score(cand2)
+
+    best_score, best_img, best_angle = max(
+        (score1, cand1, angle),
+        (score2, cand2, -angle),
+        (base_score, image, 0.0),
+        key=lambda x: x[0]
+    )
+    
+    print(f"estimated skew  : {angle:.3f}°")
+    print(f"applied angle   : {applied_angle:.3f}°")
+    
+    if best_score < base_score * (1 + min_gain):
+        return image, 0.0
+        
+    return best_img, best_angle
 
 def estimate_skew_angle(image):
     """
@@ -166,16 +203,11 @@ def deskew_document(
     image = read_image(input_path)
     image = resize_for_ocr(image)
     angle = estimate_skew_angle(image)
-
-    if abs(angle) < 0.5:
-        corrected = image.copy()
-        print("rotation skipped: already straight")
-    else:
-        corrected = deskew_image(
-            image,
-            angle
-        )
-
+    corrected, applied_angle = choose_deskew(
+        image,
+        angle
+    )
+    
 
     if output_path is None:
         output_path = (
