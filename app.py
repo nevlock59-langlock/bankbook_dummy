@@ -372,7 +372,7 @@ if uploaded_file is not None:
             if st.button("↻ 180° 회전"):
                 st.session_state.preview_rotated = not st.session_state.preview_rotated
 
-            preview = read_image(deskewed_path)
+            preview = cv2.imread(str(deskewed_path))
 
             if st.session_state.preview_rotated:
                 preview = cv2.rotate(
