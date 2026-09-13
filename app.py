@@ -366,20 +366,6 @@ if uploaded_file is not None:
 
             st.subheader("보정 결과")
 
-            if "preview_rotated" not in st.session_state:
-                st.session_state.preview_rotated = False
-
-            if st.button("↻ 180° 회전"):
-                st.session_state.preview_rotated = not st.session_state.preview_rotated
-
-            preview = cv2.imread(str(deskewed_path))
-
-            if st.session_state.preview_rotated:
-                preview = cv2.rotate(
-                    preview,
-                    cv2.ROTATE_180
-                )
-
             
             st.image(
                 str(deskewed_path),
