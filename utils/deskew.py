@@ -106,7 +106,7 @@ def choose_deskew(image, angle, min_gain=0.05):
     )
     
     print(f"estimated skew  : {angle:.3f}°")
-    print(f"applied angle   : {applied_angle:.3f}°")
+    print(f"applied angle   : {best_angle:.3f}°")
     
     if best_score < base_score * (1 + min_gain):
         return image, 0.0
