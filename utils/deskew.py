@@ -19,6 +19,41 @@ def resize_for_ocr(image, max_side=2000):
         interpolation=cv2.INTER_AREA,
     )
 
+def horizontal_projection_score(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    edges = cv2.Canny(
+        gray,
+        50,
+        150
+    )
+
+    # 회전하면서 생긴 바깥 테두리가 점수를 먹지 않게
+    # 중앙 80% 정도만 평가
+    h, w = edges.shape
+    edges = edges[
+        int(h * 0.1):int(h * 0.9),
+        int(w * 0.1):int(w * 0.9)
+    ]
+
+    projection = np.sum(
+        edges > 0,
+        axis=1
+    ).astype(np.float32)
+
+    mean = np.mean(projection)
+
+    if mean == 0:
+        return 0.0
+
+    return float(
+        (
+            np.percentile(projection, 90)
+            - np.percentile(projection, 10)
+        )
+        / mean
+    )
+
 def read_image(path):
     """
     한글/공백이 포함된 Windows 경로도 안전하게 읽는다.
