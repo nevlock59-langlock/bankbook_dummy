@@ -166,7 +166,19 @@ def estimate_skew_angle(image):
         angles.append(angle)
         weights.append(length)
 
-    return float(np.median(angles))
+    angles = np.array(angles)
+
+    bins = np.arange(-90, 91, 2)
+    hist, edges = np.histogram(angles, bins=bins)
+
+    i = np.argmax(hist)
+
+    dominant = angles[
+        (angles >= edges[i]) &
+        (angles < edges[i + 1])
+    ]
+
+    return float(np.median(dominant))
 
 
 def deskew_image(image, angle):
